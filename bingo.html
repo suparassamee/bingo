@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrier Bingo Master Board</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f0f4f8;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .header-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        /* ส่วนแสดงโลโก้ Carrier */
+        .logo {
+            max-width: 220px;
+            height: auto;
+            margin-bottom: 10px;
+            filter: drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.15));
+        }
+
+        h1 {
+            color: #000099;
+            margin: 5px 0 15px 0;
+            font-size: 28px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .controls {
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 10px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            background-color: #000099;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 153, 0.2);
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #000066;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 153, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        /* ตารางบิงโกธีมน้ำเงิน-ขาว */
+        .bingo-board {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            border: 3px solid #000099;
+            border-radius: 12px;
+            overflow: hidden;
+            background-color: #ffffff;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .column {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .cell {
+            width: 75px;
+            height: 48px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid #dcdcdc;
+            font-size: 20px;
+            font-weight: bold;
+            user-select: none;
+        }
+
+        /* หัวตาราง B I N G O */
+        .header {
+            background-color: #000099;
+            color: #ffffff;
+            font-size: 26px;
+            font-weight: 800;
+            border: none;
+            border-bottom: 2px solid #000099;
+        }
+
+        /* ตัวเลขปกติ */
+        .number {
+            color: #333333;
+            cursor: pointer;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .number:hover {
+            background-color: #e6f0fa;
+        }
+
+        /* ตัวเลขที่ถูกคลิกเลือกแล้ว (เน้นไฮไลท์สีน้ำเงินเข้ม) */
+        .number.selected {
+            background-color: #000099;
+            color: #ffffff;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-container">
+        <!-- โลโก้ Carrier แบบภาพ SVG จาก URL ภายนอก -->
+        <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/Carrier_logo.svg" alt="Carrier Logo" class="logo">
+        <h1>Bingo Master Board</h1>
+    </div>
+
+    <div class="controls">
+        <button onclick="resetBoard()">ล้างกระดาน (Reset)</button>
+    </div>
+
+    <div class="bingo-board" id="board"></div>
+
+    <script>
+        const columns = [
+            { letter: 'B', min: 1, max: 15 },
+            { letter: 'I', min: 16, max: 30 },
+            { letter: 'N', min: 31, max: 45 },
+            { letter: 'G', min: 46, max: 60 },
+            { letter: 'O', min: 61, max: 75 }
+        ];
+
+        function createBoard() {
+            const board = document.getElementById('board');
+            board.innerHTML = '';
+
+            columns.forEach(col => {
+                const columnDiv = document.createElement('div');
+                columnDiv.className = 'column';
+
+                // หัวแถว B I N G O
+                const headerDiv = document.createElement('div');
+                headerDiv.className = 'cell header';
+                headerDiv.innerText = col.letter;
+                columnDiv.appendChild(headerDiv);
+
+                // ช่องตัวเลข 15 ตัวในแต่ละคอลัมน์
+                for (let num = col.min; num <= col.max; num++) {
+                    const cellDiv = document.createElement('div');
+                    cellDiv.className = 'cell number';
+                    cellDiv.innerText = num;
+                    cellDiv.onclick = function() {
+                        this.classList.toggle('selected');
+                    };
+                    columnDiv.appendChild(cellDiv);
+                }
+
+                board.appendChild(columnDiv);
+            });
+        }
+
+        function resetBoard() {
+            if (confirm('ต้องการล้างกระดานใช่หรือไม่?')) {
+                const selectedCells = document.querySelectorAll('.cell.selected');
+                selectedCells.forEach(cell => cell.classList.remove('selected'));
+            }
+        }
+
+        // เริ่มต้นสร้างกระดานเมื่อเปิดหน้าเว็บ
+        createBoard();
+    </script>
+
+</body>
+</html>
