@@ -3,44 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carrier Bingo Master Board</title>
+    <title>124 YEARS OF EXCELLENCE - Bingo Board</title>
     <style>
         * {
             box-sizing: border-box;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Arial Black', 'Arial Bold', Gadget, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
-            background-color: #f0f4f8;
+            background-color: #f4f6f9;
             margin: 0;
             padding: 20px;
         }
 
-        .header-container {
+        /* ส่วนหัวข้อความและโลโก้ */
+        .header-title-container {
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin-bottom: 20px;
+            text-align: center;
+            margin-bottom: 25px;
+            line-height: 0.9;
         }
 
-        /* โลโก้ Carrier */
+        /* โลโก้ Carrier ด้านบนสุด */
         .logo {
-            width: 240px;
+            width: 220px;
             max-width: 90vw;
             height: auto;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             filter: drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.15));
         }
 
-        h1 {
-            color: #000099;
-            margin: 5px 0 15px 0;
-            font-size: 28px;
+        /* เลข 124 สีน้ำเงินเข้ม */
+        .title-124 {
+            font-size: 85px;
+            font-weight: 900;
+            color: #1a2b6d;
+            letter-spacing: -2px;
+            margin: 0;
+        }
+
+        /* คำว่า YEARS OF สีฟ้าสดใส */
+        .title-years {
+            font-size: 42px;
+            font-weight: 900;
+            color: #007cc3;
             letter-spacing: 1px;
-            text-transform: uppercase;
+            margin: 4px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .title-years .of-text {
+            font-size: 14px;
+            font-weight: 800;
+            color: #1a2b6d;
+            display: inline-block;
+            line-height: 1;
+            text-align: center;
+        }
+
+        /* คำว่า EXCELLENCE สีน้ำเงินเข้ม */
+        .title-excellence {
+            font-size: 38px;
+            font-weight: 900;
+            color: #1a2b6d;
+            letter-spacing: 1.5px;
+            margin: 0;
         }
 
         .controls {
@@ -49,32 +84,33 @@
 
         button {
             padding: 10px 24px;
+            font-family: Arial, sans-serif;
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
-            background-color: #000099;
+            background-color: #1a2b6d;
             color: white;
             border: none;
             border-radius: 25px;
-            box-shadow: 0 4px 6px rgba(0, 0, 153, 0.2);
+            box-shadow: 0 4px 6px rgba(26, 43, 109, 0.2);
             transition: all 0.2s ease;
         }
 
         button:hover {
-            background-color: #000066;
+            background-color: #0d1842;
             transform: translateY(-2px);
-            box-shadow: 0 6px 8px rgba(0, 0, 153, 0.3);
+            box-shadow: 0 6px 8px rgba(26, 43, 109, 0.3);
         }
 
         button:active {
             transform: translateY(0);
         }
 
-        /* ตารางบิงโกธีมน้ำเงิน-ขาว */
+        /* ตารางบิงโก */
         .bingo-board {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
-            border: 3px solid #000099;
+            border: 3px solid #1a2b6d;
             border-radius: 12px;
             overflow: hidden;
             background-color: #ffffff;
@@ -100,12 +136,12 @@
 
         /* หัวตาราง B I N G O */
         .header {
-            background-color: #000099;
+            background-color: #1a2b6d;
             color: #ffffff;
             font-size: 26px;
             font-weight: 800;
             border: none;
-            border-bottom: 2px solid #000099;
+            border-bottom: 2px solid #1a2b6d;
         }
 
         /* ตัวเลขปกติ */
@@ -121,7 +157,7 @@
 
         /* ตัวเลขที่ถูกคลิกเลือกแล้ว */
         .number.selected {
-            background-color: #000099;
+            background-color: #007cc3;
             color: #ffffff;
             box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
         }
@@ -129,10 +165,17 @@
 </head>
 <body>
 
-    <div class="header-container">
-        <!-- อ้างอิงไฟล์โลโก้ logo.png ที่อัปโหลดขึ้น GitHub -->
-        <img src="logo.png" alt="Carrier Logo" class="logo">
-        <h1>Bingo Master Board</h1>
+    <!-- ส่วนหัวที่มีทั้ง โลโก้ และ ข้อความ 124 YEARS OF EXCELLENCE -->
+    <div class="header-title-container">
+        <!-- อ้างอิงไฟล์รูป carrier.png ที่คุณจะอัปโหลด -->
+        <img src="carrier.png" alt="Carrier Logo" class="logo">
+
+        <div class="title-124">124</div>
+        <div class="title-years">
+            YEARS 
+            <span class="of-text">OF</span>
+        </div>
+        <div class="title-excellence">EXCELLENCE</div>
     </div>
 
     <div class="controls">
