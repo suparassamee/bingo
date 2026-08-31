@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bingo Master Board</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f4f4f9;
+            margin: 20px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .controls {
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 8px 16px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+
+        button:hover {
+            background-color: #c82333;
+        }
+
+        .bingo-board {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            border: 2px solid #000;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .column {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .cell {
+            width: 70px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid #000;
+            font-size: 20px;
+            font-weight: bold;
+            user-select: none;
+        }
+
+        .header {
+            background-color: #f0f0f0;
+            font-size: 24px;
+        }
+
+        .number {
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .number:hover {
+            background-color: #e2e2e2;
+        }
+
+        /* สีเมื่อถูกคลิกเลือกแล้ว */
+        .number.selected {
+            background-color: #28a745;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Bingo Master Board</h1>
+
+    <div class="controls">
+        <button onclick="resetBoard()">ล้างกระดาน (Reset)</button>
+    </div>
+
+    <div class="bingo-board" id="board"></div>
+
+    <script>
+        const columns = [
+            { letter: 'B', min: 1, max: 15 },
+            { letter: 'I', min: 16, max: 30 },
+            { letter: 'N', min: 31, max: 45 },
+            { letter: 'G', min: 46, max: 60 },
+            { letter: 'O', min: 61, max: 75 }
+        ];
+
+        function createBoard() {
+            const board = document.getElementById('board');
+            board.innerHTML = '';
+
+            columns.forEach(col => {
+                const columnDiv = document.createElement('div');
+                columnDiv.className = 'column';
+
+                // หัวแถว B I N G O
+                const headerDiv = document.createElement('div');
+                headerDiv.className = 'cell header';
+                headerDiv.innerText = col.letter;
+                columnDiv.appendChild(headerDiv);
+
+                // สร้าง ช่องตัวเลข 15 ตัวในแต่ละคอลัมน์
+                for (let num = col.min; num <= col.max; num++) {
+                    const cellDiv = document.createElement('div');
+                    cellDiv.className = 'cell number';
+                    cellDiv.innerText = num;
+                    cellDiv.onclick = function() {
+                        this.classList.toggle('selected');
+                    };
+                    columnDiv.appendChild(cellDiv);
+                }
+
+                board.appendChild(columnDiv);
+            });
+        }
+
+        function resetBoard() {
+            if (confirm('ต้องการล้างกระดานใช่หรือไม่?')) {
+                const selectedCells = document.querySelectorAll('.cell.selected');
+                selectedCells.forEach(cell => cell.classList.remove('selected'));
+            }
+        }
+
+        // เริ่มต้นสร้างกระดานเมื่อเปิดหน้าเว็บ
+        createBoard();
+    </script>
+
+</body>
+</html>
