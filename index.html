@@ -106,6 +106,83 @@
             transform: translateY(0);
         }
 
+        button:disabled {
+            background-color: #a0a0a0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* เลย์เอาต์หลัก แบ่งฝั่งวงล้อกับตาราง */
+        .main-container {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        /* ส่วนของวงล้อ */
+        .wheel-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            border: 3px solid #1a2b6d;
+        }
+
+        .wheel-wrapper {
+            position: relative;
+            width: 320px;
+            height: 320px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* ลูกศรชี้วงล้อ */
+        .pointer {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 25px solid #d9534f;
+            z-index: 10;
+        }
+
+        #wheelCanvas {
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+
+        .spin-btn {
+            margin-top: 15px;
+            background-color: #007cc3;
+            font-size: 18px;
+            padding: 12px 30px;
+        }
+
+        .spin-btn:hover {
+            background-color: #005a8f;
+        }
+
+        .result-display {
+            margin-top: 15px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #1a2b6d;
+            height: 32px;
+        }
+
         /* ตารางบิงโก */
         .bingo-board {
             display: grid;
@@ -155,7 +232,7 @@
             background-color: #e6f0fa;
         }
 
-        /* ตัวเลขที่ถูกคลิกเลือกแล้ว */
+        /* ตัวเลขที่ถูกเลือก */
         .number.selected {
             background-color: #007cc3;
             color: #ffffff;
@@ -167,9 +244,7 @@
 
     <!-- ส่วนหัวที่มีทั้ง โลโก้ และ ข้อความ 124 YEARS OF EXCELLENCE -->
     <div class="header-title-container">
-        <!-- อ้างอิงไฟล์รูป carrier2.png -->
         <img src="carrier2.png" alt="Carrier Logo" class="logo">
-
         <div class="title-124">124</div>
         <div class="title-years">
             YEARS 
@@ -182,7 +257,23 @@
         <button onclick="resetBoard()">ล้างกระดาน (Reset)</button>
     </div>
 
-    <div class="bingo-board" id="board"></div>
+    <!-- คอนเทนเนอร์หลัก แบ่งฝั่งวงล้อกับตาราง -->
+    <div class="main-container">
+        
+        <!-- ฝั่งซ้าย: วงล้อสุ่มเลข -->
+        <div class="wheel-container">
+            <div class="wheel-wrapper">
+                <div class="pointer"></div>
+                <canvas id="wheelCanvas" width="300" height="300"></canvas>
+            </div>
+            <button class="spin-btn" id="spinBtn" onclick="spinWheel()">หมุนวงล้อสุ่มเลข</button>
+            <div class="result-display" id="resultDisplay">กดหมุนเพื่อเริ่มสุ่ม</div>
+        </div>
+
+        <!-- ฝั่งขวา: ตารางบิงโก -->
+        <div class="bingo-board" id="board"></div>
+
+    </div>
 
     <script>
         const columns = [
@@ -193,6 +284,104 @@
             { letter: 'O', min: 61, max: 75 }
         ];
 
+        // ตัวแปรสำหรับวงล้อและการสุ่ม
+        let availableNumbers = Array.from({length: 75}, (_, i) => i + 1);
+        let isSpinning = false;
+        let currentRotation = 0;
+        const canvas = document.getElementById('wheelCanvas');
+        const ctx = canvas.getContext('2d');
+        const totalSegments = 75;
+
+        // วาดรูปวงล้อ 75 ช่อง
+        function drawWheel() {
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const radius = canvas.width / 2;
+            const sliceAngle = (2 * Math.PI) / totalSegments;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (let i = 0; i < totalSegments; i++) {
+                const angle = i * sliceAngle;
+                
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, radius, angle, angle + sliceAngle);
+                ctx.closePath();
+
+                // สลับสีฟ้า/น้ำเงินตามธีม
+                ctx.fillStyle = (i % 2 === 0) ? '#1a2b6d' : '#007cc3';
+                ctx.fill();
+                ctx.lineWidth = 0.5;
+                ctx.strokeStyle = '#ffffff';
+                ctx.stroke();
+            }
+
+            // วาดวงกลมตรงกลางวงล้อ
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 25, 0, 2 * Math.PI);
+            ctx.fillStyle = '#ffffff';
+            ctx.fill();
+            ctx.strokeStyle = '#1a2b6d';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+        }
+
+        // ฟังก์ชันหมุนวงล้อ
+        function spinWheel() {
+            if (isSpinning) return;
+            if (availableNumbers.length === 0) {
+                alert('สุ่มครบทั้ง 75 เลขแล้ว!');
+                return;
+            }
+
+            isSpinning = true;
+            document.getElementById('spinBtn').disabled = true;
+            document.getElementById('resultDisplay').innerText = "กำลังสุ่ม...";
+
+            // สุ่มเลือกเลขจากรายการที่เหลืออยู่
+            const randomIndex = Math.floor(Math.random() * availableNumbers.length);
+            const selectedNumber = availableNumbers[randomIndex];
+            
+            // ลบเลขที่ถูกสุ่มออก เพื่อไม่ให้สุ่มซ้ำ
+            availableNumbers.splice(randomIndex, 1);
+
+            // คำนวณองศาการหมุน
+            const extraRounds = 5 + Math.floor(Math.random() * 3); // หมุน 5-7 รอบ
+            const targetSegmentAngle = (360 / totalSegments);
+            
+            // ปรับตำแหน่งมุมให้ลูกศรด้านบนชี้ตรงเลข
+            const targetAngle = (360 - ((selectedNumber - 1) * targetSegmentAngle) - (targetSegmentAngle / 2)) % 360;
+            const totalDegrees = currentRotation + (extraRounds * 360) + targetAngle - (currentRotation % 360);
+
+            currentRotation = totalDegrees;
+            canvas.style.transition = 'transform 4s cubic-bezier(0.15, 0.9, 0.2, 1)';
+            canvas.style.transform = `rotate(${totalDegrees}deg)`;
+
+            // เมื่อวงล้อหมุนเสร็จสิ้น (4 วินาที)
+            setTimeout(() => {
+                isSpinning = false;
+                document.getElementById('spinBtn').disabled = false;
+                
+                // หาตัวอักษรประจำหมวด B-I-N-G-O
+                let letter = '';
+                if (selectedNumber <= 15) letter = 'B';
+                else if (selectedNumber <= 30) letter = 'I';
+                else if (selectedNumber <= 45) letter = 'N';
+                else if (selectedNumber <= 60) letter = 'G';
+                else letter = 'O';
+
+                document.getElementById('resultDisplay').innerText = `ออกเลข: ${letter}-${selectedNumber}`;
+
+                // ไฮไลท์เลขบนตารางอัตโนมัติ
+                const targetCell = document.querySelector(`.cell.number[data-num="${selectedNumber}"]`);
+                if (targetCell) {
+                    targetCell.classList.add('selected');
+                }
+            }, 4000);
+        }
+
+        // สร้างตารางบิงโก
         function createBoard() {
             const board = document.getElementById('board');
             board.innerHTML = '';
@@ -212,6 +401,9 @@
                     const cellDiv = document.createElement('div');
                     cellDiv.className = 'cell number';
                     cellDiv.innerText = num;
+                    cellDiv.setAttribute('data-num', num);
+                    
+                    // ยังคงรองรับการคลิกเองได้ตามปกติ
                     cellDiv.onclick = function() {
                         this.classList.toggle('selected');
                     };
@@ -222,14 +414,25 @@
             });
         }
 
+        // รีเซ็ทกระดานและระบบสุ่ม
         function resetBoard() {
-            if (confirm('ต้องการล้างกระดานใช่หรือไม่?')) {
+            if (confirm('ต้องการล้างกระดานและเริ่มสุ่มใหม่ใช่หรือไม่?')) {
                 const selectedCells = document.querySelectorAll('.cell.selected');
                 selectedCells.forEach(cell => cell.classList.remove('selected'));
+                
+                // รีเซ็ทรายการสุ่มเลข
+                availableNumbers = Array.from({length: 75}, (_, i) => i + 1);
+                document.getElementById('resultDisplay').innerText = "กดหมุนเพื่อเริ่มสุ่ม";
+                
+                // คืนค่าตำแหน่งหมุนวงล้อ
+                canvas.style.transition = 'none';
+                canvas.style.transform = 'rotate(0deg)';
+                currentRotation = 0;
             }
         }
 
-        // เริ่มต้นสร้างกระดานเมื่อเปิดหน้าเว็บ
+        // เริ่มต้นการทำงานเมื่อเปิดหน้าเว็บ
+        drawWheel();
         createBoard();
     </script>
 
