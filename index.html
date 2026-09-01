@@ -138,8 +138,8 @@
 
         .wheel-wrapper {
             position: relative;
-            width: 320px;
-            height: 320px;
+            width: 380px;
+            height: 380px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -148,7 +148,7 @@
         /* ลูกศรชี้วงล้อ */
         .pointer {
             position: absolute;
-            top: -10px;
+            top: -12px;
             left: 50%;
             transform: translateX(-50%);
             width: 0;
@@ -264,7 +264,7 @@
         <div class="wheel-container">
             <div class="wheel-wrapper">
                 <div class="pointer"></div>
-                <canvas id="wheelCanvas" width="300" height="300"></canvas>
+                <canvas id="wheelCanvas" width="380" height="380"></canvas>
             </div>
             <button class="spin-btn" id="spinBtn" onclick="spinWheel()">หมุนวงล้อสุ่มเลข</button>
             <div class="result-display" id="resultDisplay">กดหมุนเพื่อเริ่มสุ่ม</div>
@@ -292,7 +292,7 @@
         const ctx = canvas.getContext('2d');
         const totalSegments = 75;
 
-        // วาดรูปวงล้อ 75 ช่อง
+        // วาดรูปวงล้อ 75 ช่องพร้อมตัวเลข
         function drawWheel() {
             const centerX = canvas.width / 2;
             const centerY = canvas.height / 2;
@@ -303,10 +303,12 @@
 
             for (let i = 0; i < totalSegments; i++) {
                 const angle = i * sliceAngle;
-                
+                const num = i + 1;
+
+                // วาดช่องวงล้อ
                 ctx.beginPath();
                 ctx.moveTo(centerX, centerY);
-                ctx.arc(centerX, centerY, radius, angle, angle + sliceAngle);
+                ctx.arc(centerX, centerY, radius - 2, angle, angle + sliceAngle);
                 ctx.closePath();
 
                 // สลับสีฟ้า/น้ำเงินตามธีม
@@ -315,6 +317,16 @@
                 ctx.lineWidth = 0.5;
                 ctx.strokeStyle = '#ffffff';
                 ctx.stroke();
+
+                // วาดตัวเลขลงในช่อง
+                ctx.save();
+                ctx.translate(centerX, centerY);
+                ctx.rotate(angle + sliceAngle / 2);
+                ctx.textAlign = "right";
+                ctx.fillStyle = "#ffffff";
+                ctx.font = "bold 9px Arial";
+                ctx.fillText(num, radius - 6, 3);
+                ctx.restore();
             }
 
             // วาดวงกลมตรงกลางวงล้อ
@@ -346,13 +358,23 @@
             // ลบเลขที่ถูกสุ่มออก เพื่อไม่ให้สุ่มซ้ำ
             availableNumbers.splice(randomIndex, 1);
 
-            // คำนวณองศาการหมุน
+            // คำนวณองศาการหมุนให้อยู่ตรงลูกศรด้านบนพอดี (-90 องศาคือทิศด้านบน)
             const extraRounds = 5 + Math.floor(Math.random() * 3); // หมุน 5-7 รอบ
-            const targetSegmentAngle = (360 / totalSegments);
+            const sliceDeg = 360 / totalSegments;
             
-            // ปรับตำแหน่งมุมให้ลูกศรด้านบนชี้ตรงเลข
-            const targetAngle = (360 - ((selectedNumber - 1) * targetSegmentAngle) - (targetSegmentAngle / 2)) % 360;
-            const totalDegrees = currentRotation + (extraRounds * 360) + targetAngle - (currentRotation % 360);
+            // ตำแหน่งมุมของเลขที่ถูกสุ่ม
+            const numberAngle = (selectedNumber - 1) * sliceDeg + (sliceDeg / 2);
+            
+            // หมุนให้ตำแหน่งเป้าหมายไปหยุดที่ด้านบนสุด (270 องศา)
+            const targetRotation = (270 - numberAngle) % 360;
+            const currentDegree = currentRotation % 360;
+            let degreeToRotate = targetRotation - currentDegree;
+            
+            if (degreeToRotate <= 0) {
+                degreeToRotate += 360;
+            }
+
+            const totalDegrees = currentRotation + (extraRounds * 360) + degreeToRotate;
 
             currentRotation = totalDegrees;
             canvas.style.transition = 'transform 4s cubic-bezier(0.15, 0.9, 0.2, 1)';
