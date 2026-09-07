@@ -31,7 +31,7 @@
             width: 100%;
         }
 
-        /* --- ฝั่งซ้าย: โลโก้ + วงล้อ --- */
+        /* --- ฝั่งซ้าย: โลโก้ + ผลลัพธ์ + วงล้อ --- */
         .left-panel {
             display: flex;
             flex-direction: column;
@@ -53,7 +53,7 @@
             align-items: center;
             text-align: center;
             line-height: 0.85;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
         }
 
         .logo {
@@ -100,11 +100,32 @@
             margin: 0;
         }
 
+        /* --- กล่องแสดงผลลัพธ์ใหม่ (ย้ายมาไว้ข้างบน และขยายให้เด่น) --- */
+        .result-display {
+            margin: 10px 0 5px 0;
+            font-size: 42px; /* ขนาดตัวอักษรใหญ่พิเศษสำหรับ Projector */
+            font-weight: 900;
+            color: #d9534f;
+            background: linear-gradient(135deg, #fff3cd 0%, #ffe8a1 100%);
+            border: 3px solid #f0ad4e;
+            border-radius: 12px;
+            padding: 8px 15px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(217, 83, 79, 0.25);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease;
+        }
+
+        .result-display.pop {
+            transform: scale(1.05);
+        }
+
         /* วงล้อ */
         .wheel-wrapper {
             position: relative;
-            width: 300px;
-            height: 300px;
+            width: 290px;
+            height: 290px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -138,23 +159,14 @@
 
         .spin-btn {
             background-color: #007cc3;
-            font-size: 16px;
-            padding: 10px 24px;
+            font-size: 18px;
+            padding: 12px 24px;
             width: 100%;
-            max-width: 250px;
+            max-width: 280px;
         }
 
         .spin-btn:hover {
             background-color: #005a8f;
-        }
-
-        .result-display {
-            margin-top: 8px;
-            font-size: 20px;
-            font-weight: bold;
-            color: #1a2b6d;
-            height: 26px;
-            text-align: center;
         }
 
         /* --- ฝั่งขวา: ปุ่มรีเซ็ต + ตารางบิงโก --- */
@@ -267,6 +279,7 @@
     <div class="main-container">
         
         <div class="left-panel">
+            <!-- 1. ส่วนโลโก้ -->
             <div class="header-title-container">
                 <img src="carrier2.png" alt="Carrier Logo" class="logo">
                 <div class="title-124">124</div>
@@ -277,14 +290,18 @@
                 <div class="title-excellence">EXCELLENCE</div>
             </div>
 
+            <!-- 2. ส่วนผลลัพธ์ (ย้ายมาไว้ตรงนี้ เพื่อให้เห็นชัดบน Projector) -->
+            <div class="result-display" id="resultDisplay">READY</div>
+
+            <!-- 3. ส่วนวงล้อ -->
             <div class="wheel-wrapper">
                 <div class="pointer"></div>
-                <canvas id="wheelCanvas" width="300" height="300"></canvas>
+                <canvas id="wheelCanvas" width="290" height="290"></canvas>
             </div>
 
+            <!-- 4. ปุ่มกดหมุน -->
             <div class="wheel-controls">
                 <button class="spin-btn" id="spinBtn" onclick="spinWheel()">หมุนวงล้อสุ่มเลข</button>
-                <div class="result-display" id="resultDisplay">กดหมุนเพื่อเริ่มสุ่ม</div>
             </div>
         </div>
 
@@ -366,7 +383,11 @@
 
             isSpinning = true;
             document.getElementById('spinBtn').disabled = true;
-            document.getElementById('resultDisplay').innerText = "กำลังสุ่ม...";
+            
+            const resultDisplay = document.getElementById('resultDisplay');
+            resultDisplay.classList.remove('pop');
+            resultDisplay.style.fontSize = "30px";
+            resultDisplay.innerText = "กำลังสุ่ม...";
 
             const randomIndex = Math.floor(Math.random() * availableNumbers.length);
             const selectedNumber = availableNumbers[randomIndex];
@@ -402,7 +423,9 @@
                 else if (selectedNumber <= 60) letter = 'G';
                 else letter = 'O';
 
-                document.getElementById('resultDisplay').innerText = `ออกเลข: ${letter}-${selectedNumber}`;
+                resultDisplay.style.fontSize = "42px";
+                resultDisplay.innerText = `${letter}-${selectedNumber}`;
+                resultDisplay.classList.add('pop');
 
                 const targetCell = document.querySelector(`.cell.number[data-num="${selectedNumber}"]`);
                 if (targetCell) {
@@ -448,7 +471,11 @@
                 selectedCells.forEach(cell => cell.classList.remove('selected'));
                 
                 availableNumbers = Array.from({length: 75}, (_, i) => i + 1);
-                document.getElementById('resultDisplay').innerText = "กดหมุนเพื่อเริ่มสุ่ม";
+                
+                const resultDisplay = document.getElementById('resultDisplay');
+                resultDisplay.style.fontSize = "42px";
+                resultDisplay.innerText = "READY";
+                resultDisplay.classList.remove('pop');
                 
                 canvas.style.transition = 'none';
                 canvas.style.transform = 'rotate(0deg)';
